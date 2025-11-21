@@ -24,7 +24,6 @@ class CallDetailsApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Follow Ups Tool - V3.1")
-        self.root.geometry("990x925+0+0")
         self.notes = self.load_json(DATA_FILE)
         self.contacts = self.load_json(CONTACTS_FILE)
         self.quick_notes = self.load_json(QUICK_NOTES_FILE)
@@ -62,6 +61,18 @@ class CallDetailsApp:
         self.create_follow_ups_tab()
         self.create_general_notes_tab()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.set_initial_window_size()
+
+    def set_initial_window_size(self):
+        self.root.update_idletasks()
+        required_width = self.root.winfo_reqwidth()
+        required_height = self.root.winfo_reqheight()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        min_width = min(required_width, screen_width)
+        min_height = min(required_height, screen_height)
+        self.root.minsize(min_width, min_height)
+        self.root.geometry(f"{min_width}x{min_height}")
     def load_json(self, filename):
         if os.path.exists(filename):
             try:
@@ -159,12 +170,19 @@ class CallDetailsApp:
         form = {"undo_stack": [], "redo_stack": []}
         main_frame = ttk.Frame(parent)
         main_frame.pack(fill="both", expand=True, side="left")
+        main_frame.grid_columnconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(1, weight=1)
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_rowconfigure(1, weight=1)
+        main_frame.grid_rowconfigure(2, weight=2)
         call_frame = ttk.LabelFrame(
             main_frame,
             text="📞 Call Details           Phone Number: (800) 930-6387  | Fax Number: (888) 437-7288",
             padding=10,
         )
         call_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        for col in range(4):
+            call_frame.columnconfigure(col, weight=1)
         form["follow_up_var"] = tk.StringVar(value="")
         ttk.Label(call_frame, text="Follow-up Type:", foreground="red").grid(
             row=0, column=0, sticky="e"
@@ -230,6 +248,8 @@ class CallDetailsApp:
             main_frame, text="📌 Mandatory Questions", padding=10
         )
         mandatory_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        for col in range(4):
+            mandatory_frame.columnconfigure(col, weight=1)
         form["network_var"] = tk.StringVar(value="")
         ttk.Label(mandatory_frame, text="Network Status:", foreground="red").grid(
             row=0, column=0, sticky="e"
@@ -296,6 +316,8 @@ class CallDetailsApp:
         ).grid(row=7, column=0, columnspan=3, sticky="e")
         appeal_frame = ttk.LabelFrame(main_frame, text="📄 Appeal Process", padding=10)
         appeal_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        for col in range(3):
+            appeal_frame.columnconfigure(col, weight=1)
         ttk.Label(appeal_frame, text="💻 Online:").grid(row=0, column=0, sticky="e")
         form["online_entry"] = ttk.Entry(appeal_frame)
         form["online_entry"].grid(row=0, column=1, columnspan=2, sticky="ew")
@@ -320,6 +342,8 @@ class CallDetailsApp:
             main_frame, text="📑 Contract Details", padding=10
         )
         contract_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+        for col in range(3):
+            contract_frame.columnconfigure(col, weight=1)
         ttk.Label(contract_frame, text="CC Name:").grid(row=0, column=0, sticky="e")
         form["cc_name_entry"] = ttk.Entry(contract_frame)
         form["cc_name_entry"].grid(row=0, column=1, columnspan=2, sticky="ew")
@@ -338,12 +362,18 @@ class CallDetailsApp:
         form["contract_comment_entry"].bind("<Return>", disable_enter)
         note_frame = ttk.LabelFrame(main_frame, text="Note Section", padding=10)
         note_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        note_frame.columnconfigure(0, weight=1)
+        note_frame.columnconfigure(1, weight=1)
+        note_frame.rowconfigure(0, weight=1)
         action_frame = ttk.LabelFrame(note_frame, text="Action Note", padding=10)
         action_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        for col in range(3):
+            action_frame.columnconfigure(col, weight=1)
+        action_frame.rowconfigure(0, weight=1)
         form["action_note_text"] = scrolledtext.ScrolledText(
             action_frame, height=12, width=50
         )
-        form["action_note_text"].grid(row=0, column=0, columnspan=3)
+        form["action_note_text"].grid(row=0, column=0, columnspan=3, sticky="nsew")
         form["action_note_text"].bind(
             "<KeyRelease>", lambda e: self.save_text_state(form, "action_note_text")
         )
@@ -358,10 +388,13 @@ class CallDetailsApp:
         self.view_quick_notes_button.grid(row=1, column=1, pady=5, sticky="w")
         preview_frame = ttk.LabelFrame(note_frame, text="Note Preview", padding=10)
         preview_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        for col in range(3):
+            preview_frame.columnconfigure(col, weight=1)
+        preview_frame.rowconfigure(0, weight=1)
         form["note_preview_text"] = scrolledtext.ScrolledText(
             preview_frame, height=10, width=50
         )
-        form["note_preview_text"].grid(row=0, column=0, columnspan=3)
+        form["note_preview_text"].grid(row=0, column=0, columnspan=3, sticky="nsew")
         ttk.Label(preview_frame, text="Follow-Up in (days):").grid(
             row=1, column=0, sticky="e"
         )
