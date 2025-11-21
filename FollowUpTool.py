@@ -3,32 +3,22 @@ from tkinter import ttk, messagebox, scrolledtext, filedialog
 import tkinter.simpledialog as simpledialog
 import json
 from datetime import datetime, date, timedelta
+from pathlib import Path
 import pandas as pd
 import os
-DATA_FILE = os.path.join(
-    os.path.join(os.environ["USERPROFILE"]), r"Documents\Follow-Ups\v3\call_notes.json"
-)
-CONTACTS_FILE = os.path.join(
-    os.path.join(os.environ["USERPROFILE"]), r"Documents\Follow-Ups\v3\contacts.json"
-)
-QUICK_NOTES_FILE = os.path.join(
-    os.path.join(os.environ["USERPROFILE"]), r"Documents\Follow-Ups\v3\quick_notes.json"
-)
-GENERAL_NOTES_FILE = os.path.join(
-    os.path.join(os.environ["USERPROFILE"]),
-    r"Documents\Follow-Ups\v3\general_notes.json",
-)
-TAGS_FILE = os.path.join(
-    os.path.join(os.environ["USERPROFILE"]), r"Documents\Follow-Ups\v3\tags.json"
-)
+
+BASE_DIR = Path.home() / "Documents" / "Follow-Ups" / "v3"
+DATA_FILE = BASE_DIR / "call_notes.json"
+CONTACTS_FILE = BASE_DIR / "contacts.json"
+QUICK_NOTES_FILE = BASE_DIR / "quick_notes.json"
+GENERAL_NOTES_FILE = BASE_DIR / "general_notes.json"
+TAGS_FILE = BASE_DIR / "tags.json"
+
+
 def ensure_directories_exist():
-    directory = os.path.dirname(DATA_FILE)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    for file_path in [CONTACTS_FILE, QUICK_NOTES_FILE, GENERAL_NOTES_FILE, TAGS_FILE]:
-        directory = os.path.dirname(file_path)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+    BASE_DIR.mkdir(parents=True, exist_ok=True)
+
+
 ensure_directories_exist()
 class CallDetailsApp:
     def __init__(self, root):
@@ -472,7 +462,7 @@ class CallDetailsApp:
         new_form["fax_entry"].insert(0, form["fax_entry"].get())
         new_form["mail_entry"].insert("1.0", form["mail_entry"].get("1.0", tk.END))
         new_form["attn_entry"].insert(0, form["attn_entry"].get())
-        new_form["prev_verified_var"].set(1)
+        new_form["prev_verified_var"].set(form["prev_verified_var"].get())
     def create_notes_tab(self):
         notes_frame = ttk.Frame(self.notes_tab, padding=10)
         notes_frame.pack(fill="both", expand=True)
@@ -1311,7 +1301,7 @@ class CallDetailsApp:
             fax_entry = form["fax_entry"].get()
             mail_entry = form["mail_entry"].get("1.0", tk.END)
             attn_entry = form["attn_entry"].get()
-            nprev_verified_var = 1
+            prev_verified = form["prev_verified_var"].get()
             self.reset_fields(form)
             form["follow_up_var"].set(follow_up_var)
             form["phone_entry"].insert(0, phone_entry)
@@ -1322,7 +1312,7 @@ class CallDetailsApp:
             form["fax_entry"].insert(0, fax_entry)
             form["mail_entry"].insert("1.0", mail_entry)
             form["attn_entry"].insert(0, attn_entry)
-            form["prev_verified_var"].set(nprev_verified_var)
+            form["prev_verified_var"].set(prev_verified)
         else:
             form["submit_button"].config(state=tk.NORMAL)
             tab_index = self.notebook.index(self.notebook.select())
